@@ -1,0 +1,47 @@
+{
+  "name": "matrix-rain",
+  "version": "0.2.0",
+  "description": "Thème sombre vert phosphore avec une pluie numérique animée en fond (app desktop et mobile).",
+  "license": "MIT",
+  "userConfig": {
+    "density": {
+      "type": "string",
+      "title": "Densité des colonnes",
+      "description": "Largeur des colonnes : tres-dense (7 pt), dense (9 pt), normale (13 pt).",
+  "license": "MIT",
+      "options": ["tres-dense", "dense", "normale"],
+      "default": "tres-dense"
+    },
+    "speed": {
+      "type": "string",
+      "title": "Vitesse de chute",
+      "description": "Vitesse des têtes qui descendent.",
+  "license": "MIT",
+      "options": ["lente", "normale", "rapide"],
+      "default": "normale"
+    },
+    "trail": {
+      "type": "string",
+      "title": "Longueur des traînées",
+      "description": "Durée d'extinction des caractères derrière la tête.",
+  "license": "MIT",
+      "options": ["courte", "normale", "longue"],
+      "default": "normale"
+    },
+    "glow": {
+      "type": "string",
+      "title": "Halo",
+      "description": "Intensité du halo autour des caractères.",
+  "license": "MIT",
+      "options": ["aucun", "doux", "normal", "fort"],
+      "default": "normal"
+    },
+    "pointer": {
+      "type": "boolean",
+      "title": "Réaction au pointeur",
+      "description": "Les colonnes s'écartent sous la souris et un clic lance une onde.",
+  "license": "MIT",
+      "default": true
+    }
+  }
+}

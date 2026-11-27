@@ -1,0 +1,5 @@
+{
+  "name": "matrix-rain",
+  "owner": { "name": "MoebiuS451" },
+  "plugins": [{ "name": "matrix-rain", "source": "./" }]
+}
