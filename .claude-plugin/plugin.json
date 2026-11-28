@@ -1,6 +1,6 @@
 {
   "name": "matrix-rain",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "Thème sombre vert phosphore avec une pluie numérique animée en fond (app desktop et mobile).",
   "author": { "name": "Olivier BERTHIER Msc" },
   "license": "MIT",
@@ -42,7 +42,7 @@
     "gauge": {
       "type": "boolean",
       "title": "Jauge de contexte",
-      "description": "La pluie finit sa chute sur une ligne vivante en bas de l'écran, qui se densifie et passe du vert à l'ambre puis au rouge à mesure que le contexte approche du seuil de relance du fil (Opus ~190K, Sonnet ~150K, Haiku 70 %).",
+      "description": "La pluie finit sa chute sur une ligne vivante en bas de l'écran, qui se densifie et passe du vert à l'ambre puis au rouge à mesure que le contexte approche du seuil de relance du fil (Opus ~250K, Sonnet ~200K, Haiku 70 %).",
       "default": true
     }
   }

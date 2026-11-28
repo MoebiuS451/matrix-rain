@@ -8,19 +8,46 @@ Mod pour l'app Claude (Claude Code, desktop et mobile) : thème sombre vert phos
 
 ## Installation
 
-Dans une session Claude Code en terminal :
+Prérequis : Claude Code (app desktop ou CLI). Le dépôt est public : aucun compte GitHub ni connexion requis pour installer.
+
+Dans un terminal (PowerShell sous Windows, shell sous macOS ou Linux) :
+
+1. Ajouter la marketplace :
 
 ```
-/plugin install matrix-rain --marketplace MoebiuS451/matrix-rain
+claude plugin marketplace add MoebiuS451/matrix-rain
 ```
 
-Depuis un shell :
+2. Installer le plugin (portée utilisateur) :
 
 ```
-claude plugin install matrix-rain --marketplace MoebiuS451/matrix-rain
+claude plugin install matrix-rain@matrix-rain
 ```
 
-Dans l'app desktop : bouton **+** à côté de la zone de saisie, **Plugins**, **Add marketplace** avec `MoebiuS451/matrix-rain`, puis **Add plugin**.
+3. Vérifier :
+
+```
+claude plugin list
+```
+
+Résultat attendu : `matrix-rain@matrix-rain`, `Scope: user`, `Status: enabled`.
+
+4. Fermer complètement l'application Claude (icône de la zone de notification comprise), puis la rouvrir. Chaque fil garde la version du plugin chargée à son démarrage : un fil ouvert avant l'installation ne change pas.
+
+### Mise à jour
+
+```
+claude plugin marketplace update matrix-rain
+claude plugin update matrix-rain@matrix-rain
+```
+
+Puis redémarrer l'application (étape 4).
+
+### Désinstallation
+
+```
+claude plugin uninstall matrix-rain@matrix-rain
+```
 
 Auteur : Olivier BERTHIER Msc (MoebiuS451).
 
@@ -44,13 +71,14 @@ La pluie finit sa chute sur une ligne de glyphes vivants, tout en bas de l'écra
 - Vert sous 60 % du seuil, jaune ambré de 60 à 100 %, rouge au-delà, avec une pulsation lente.
 - Au seuil (rouge), une seconde ligne moyennement dense apparaît au-dessus et se remplit au-delà : c'est le moment de relancer le fil ou de compacter.
 - Mise à jour à la fin de chaque tour ; rien avant la première réponse ni juste après une compaction.
+
 ### Cache froid
 
 Quand le fil reste plus d'une heure sans requête (durée de vie du cache de prompt), la pluie passe du vert au **cyan** : la prochaine réponse relira tout le contexte au prix fort. Elle redevient verte dès la requête suivante. Un fil rouvert après une longue pause s'affiche cyan d'emblée.
 
 - Sur desktop seulement : la version SVG de secours n'a pas de jauge.
 
-Modifiables avec `/config` dans un terminal, ou dans `settings.json` sous `pluginConfigs`.
+Réglages : `claude plugin configure matrix-rain@matrix-rain` affiche les options et leur état. Les dialogues `/plugin` ne sont pas disponibles dans les sessions de l'app desktop. Toutes les options sont facultatives : sans réglage, les valeurs par défaut s'appliquent.
 
 ## Régénérer la scène SVG de secours
 
