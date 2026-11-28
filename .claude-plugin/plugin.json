@@ -1,6 +1,6 @@
 {
   "name": "matrix-rain",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Thème sombre vert phosphore avec une pluie numérique animée en fond (app desktop et mobile).",
   "author": { "name": "Olivier BERTHIER Msc" },
   "license": "MIT",
@@ -8,9 +8,9 @@
     "density": {
       "type": "string",
       "title": "Densité des colonnes",
-      "description": "Largeur des colonnes : tres-dense (7 pt), dense (9 pt), normale (13 pt).",
-      "options": ["tres-dense", "dense", "normale"],
-      "default": "tres-dense"
+      "description": "Largeur des colonnes : tres-dense (5 pt), dense (7 pt), normale (9 pt), grande (13 pt). À choisir selon la résolution de l'écran.",
+      "options": ["tres-dense", "dense", "normale", "grande"],
+      "default": "dense"
     },
     "speed": {
       "type": "string",

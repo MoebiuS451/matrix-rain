@@ -38,7 +38,8 @@ const LOOK: ThemeSetArgs = {
   },
 }
 
-const DENSITY: Record<string, number> = { 'tres-dense': 7, dense: 9, normale: 13 }
+// 5 pt est le minimum accepté par le shader (borne colw de rain-shader.ts).
+const DENSITY: Record<string, number> = { 'tres-dense': 5, dense: 7, normale: 9, grande: 13 }
 const SPEED: Record<string, number> = { lente: 0.7, normale: 1, rapide: 1.4 }
 const TRAIL: Record<string, number> = { courte: 0.6, normale: 1, longue: 1.6 }
 const GLOW: Record<string, number> = { aucun: 0, doux: 0.6, normal: 1, fort: 1.6 }

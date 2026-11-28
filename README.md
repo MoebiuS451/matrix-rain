@@ -30,7 +30,7 @@ Licence MIT : voir le fichier `LICENSE`.
 
 | Réglage | Valeurs | Par défaut |
 | :-- | :-- | :-- |
-| `density` | `tres-dense` (7 pt), `dense` (9 pt), `normale` (13 pt) | `tres-dense` |
+| `density` | `tres-dense` (5 pt), `dense` (7 pt), `normale` (9 pt), `grande` (13 pt) — selon la résolution de l'écran | `dense` |
 | `speed` | `lente`, `normale`, `rapide` | `normale` |
 | `trail` | `courte`, `normale`, `longue` | `normale` |
 | `glow` | `aucun`, `doux`, `normal`, `fort` | `normal` |
