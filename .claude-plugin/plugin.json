@@ -42,7 +42,7 @@
     "gauge": {
       "type": "boolean",
       "title": "Jauge de contexte",
-      "description": "La pluie finit sa chute sur une ligne vivante qui monte du bas à mesure que le contexte se remplit, vert puis ambre puis rouge, jusqu'au seuil de relance du fil (Opus ~190K, Sonnet ~150K, Haiku 70 %). Elle ne dépasse jamais le haut de la boîte de prompt.",
+      "description": "La pluie finit sa chute sur une ligne vivante en bas de l'écran, qui se densifie et passe du vert à l'ambre puis au rouge à mesure que le contexte approche du seuil de relance du fil (Opus ~190K, Sonnet ~150K, Haiku 70 %).",
       "default": true
     }
   }

@@ -39,10 +39,9 @@ Licence MIT : voir le fichier `LICENSE`.
 
 ### Jauge de contexte
 
-La pluie finit sa chute sur une ligne de glyphes vivants, qui monte depuis le bas de l'écran à mesure que le contexte du fil se remplit ; chaque goutte qui l'atteint y laisse un éclat lumineux, et rien ne tombe sous elle. Le remplissage se mesure contre le **seuil de relance** du fil, pas contre la fenêtre complète : ~190K tokens pour Opus, ~150K pour Sonnet, 70 % de la fenêtre pour Haiku, 75 % pour un autre modèle.
+La pluie finit sa chute sur une ligne de glyphes vivants, tout en bas de l'écran ; chaque goutte qui l'atteint y laisse un éclat lumineux. La ligne se densifie à mesure que le contexte du fil se remplit : 15 % des cases à vide, toutes au seuil. Le remplissage se mesure contre le **seuil de relance** du fil, pas contre la fenêtre complète : ~190K tokens pour Opus, ~150K pour Sonnet, 70 % de la fenêtre pour Haiku, 75 % pour un autre modèle.
 
 - Vert sous 60 % du seuil, ambre de 60 à 100 %, rouge au-delà, avec une pulsation lente.
-- Au maximum, la ligne s'arrête au haut de la boîte de prompt.
 - Mise à jour à la fin de chaque tour ; rien avant la première réponse ni juste après une compaction.
 - Sur desktop seulement : la version SVG de secours n'a pas de jauge.
 

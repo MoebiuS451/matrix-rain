@@ -2,7 +2,7 @@
 // traînée qui s'éteint sur place, halo, colonnes qui s'écartent sous le pointeur,
 // onde lumineuse à chaque clic. Réglages reçus du mod par `values`.
 import {
-  abs, clamp, composer, dot, exp, floor, int, length, max, min, mix, mod, picture, pointers,
+  abs, clamp, dot, exp, floor, int, length, max, min, mix, mod, picture, pointers,
   shader, sin, size, smoothstep, sqrt, table, time, unsigned, values, vec2, vec3, vec4,
 } from 'claude-code/shader'
 import type { int as Int, vec2 as V2 } from 'claude-code/shader'
@@ -81,13 +81,11 @@ const rain = picture(px => {
   const rows = size.y / ch + 1
   const ci = int(col)
 
-  // Jauge : une ligne vivante où la pluie finit sa chute. Elle monte du bas avec
-  // le remplissage, plafonnée au haut de la boîte de prompt (composer : gauche,
-  // bas, droite, haut, de 0 à 1 depuis le bas) ; rien ne tombe sous elle.
-  const boxTop = max(composer.y, composer.w)
-  const cap = boxTop > 0.02 ? boxTop : 0.12
-  const level = max(clamp(v.fill, 0, 1) * cap * size.y, ch * 0.5)
-  const lineRow = floor(max(size.y - level, 0) / ch)
+  // Jauge : une ligne vivante tout en bas, où la pluie finit sa chute. Elle se
+  // densifie avec le remplissage : 15 % des cases présentes à vide, toutes au seuil.
+  const lineRow = floor(max(size.y - ch * 0.5, 0) / ch)
+  const dens = mix(0.15, 1, clamp(v.fill, 0, 1))
+  const present = rnd(int(ci * 6007 + 17)) < dens ? 1 : 0
   const onLine = v.gauge * (row === lineRow ? 1 : 0)
   const below = v.gauge * (row > lineRow ? 1 : 0)
   const lineY = size.y - (lineRow + 1) * ch
@@ -160,7 +158,7 @@ const rain = picture(px => {
   const gaugeTint = vec3(mix(vec3(mix(green, amber, smoothstep(0.55, 0.65, fl))), red, smoothstep(0.95, 1.0, fl)))
   const pulse = fl >= 1 ? 0.85 + 0.15 * sin(time * 1.6) : 1
   const lineTint = vec3(mix(gaugeTint, white, splash * 0.5))
-  const lineBright = (0.35 + splash * 1.1) * pulse
+  const lineBright = (0.35 * present + splash * 1.1) * pulse
   const lineGlyph = vec3(lineTint * (ink + halo * (0.4 + splash * 0.8)) * lineBright)
   const floorGlow = below * exp(-max(lineY - qy, 0) / (ch * 1.5)) * 0.08 * pulse
 
