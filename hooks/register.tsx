@@ -113,6 +113,24 @@ export const register: Register = (on, options) => {
     return yield* next(e)
   })
 
+  // Fil repris ou dupliqué : l'app dit depuis combien de temps il n'a pas répondu,
+  // même s'il a tourné avant l'installation du mod.
+  on('classic.SessionStart', async ($, e, next) => {
+    const r = await next(e)
+    try {
+      if ((e.source === 'resume' || e.source === 'fork') && typeof e.seconds_since_last_response === 'number') {
+        const now = await $.clock.now()
+        lastAt = now - e.seconds_since_last_response * 1000
+        if (flip(now - lastAt > CACHE_TTL ? 1 : 0)) {
+          $.ui.invalidate('ui.render')
+        }
+      }
+    } catch (error) {
+      $.ui.log(String(error), { to: 'debug' })
+    }
+    return r
+  })
+
   if (gaugeOn) {
     on('session.measure', async ($, e, next) => {
       if (e.changed.includes('context') && (await measure(() => $.session.model(), e.context))) {
