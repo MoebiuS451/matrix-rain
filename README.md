@@ -35,14 +35,14 @@ Licence MIT : voir le fichier `LICENSE`.
 | `trail` | `courte`, `normale`, `longue` | `normale` |
 | `glow` | `aucun`, `doux`, `normal`, `fort` | `normal` |
 | `pointer` | `true` / `false` | `true` |
-| `gauge` | `true` / `false` — jauge de contexte en sédiment | `true` |
+| `gauge` | `true` / `false` — jauge de contexte en ligne vivante | `true` |
 
 ### Jauge de contexte
 
-Un sédiment de glyphes figés monte depuis le bas de l'écran à mesure que le contexte du fil se remplit. Il se mesure contre le **seuil de relance** du fil, pas contre la fenêtre complète : ~190K tokens pour Opus, ~150K pour Sonnet, 70 % de la fenêtre pour Haiku, 75 % pour un autre modèle.
+La pluie finit sa chute sur une ligne de glyphes vivants, qui monte depuis le bas de l'écran à mesure que le contexte du fil se remplit ; chaque goutte qui l'atteint y laisse un éclat lumineux, et rien ne tombe sous elle. Le remplissage se mesure contre le **seuil de relance** du fil, pas contre la fenêtre complète : ~190K tokens pour Opus, ~150K pour Sonnet, 70 % de la fenêtre pour Haiku, 75 % pour un autre modèle.
 
 - Vert sous 60 % du seuil, ambre de 60 à 100 %, rouge au-delà, avec une pulsation lente.
-- Au maximum, le sédiment s'arrête au haut de la boîte de prompt.
+- Au maximum, la ligne s'arrête au haut de la boîte de prompt.
 - Mise à jour à la fin de chaque tour ; rien avant la première réponse ni juste après une compaction.
 - Sur desktop seulement : la version SVG de secours n'a pas de jauge.
 
