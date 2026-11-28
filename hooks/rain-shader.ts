@@ -13,8 +13,9 @@ const v = values({
   trail: [0.4, 2],  // multiplicateur de longueur de traînée
   glow: [0, 2],     // intensité du halo
   react: [0, 1],    // 1 : réaction au pointeur et aux clics
-  gauge: [0, 1],    // 1 : jauge de contexte en sédiment
+  gauge: [0, 1],    // 1 : jauge de contexte (ligne vivante en bas)
   fill: [0, 1.2],   // remplissage rapporté au seuil de relance (1 = seuil)
+  rows2: [0, 1],    // 1 : la ligne se double au premier palier (60 %)
 })
 
 // Traits de glyphes dans une boîte 0..1 (y vers le haut) : x1, y1, x2, y2
@@ -83,10 +84,17 @@ const rain = picture(px => {
 
   // Jauge : une ligne vivante tout en bas, où la pluie finit sa chute. Elle se
   // densifie avec le remplissage : 15 % des cases présentes à vide, toutes au seuil.
+  // Doublée (rows2), la ligne du bas se remplit jusqu'au premier palier (60 %), puis
+  // une seconde ligne apparaît au-dessus et se remplit jusqu'au seuil.
   const lineRow = floor(max(size.y - ch * 0.5, 0) / ch)
-  const dens = mix(0.15, 1, clamp(v.fill, 0, 1))
-  const present = rnd(int(ci * 6007 + 17)) < dens ? 1 : 0
-  const onLine = v.gauge * (row === lineRow ? 1 : 0)
+  const two = v.rows2 * (v.fill >= 0.6 ? 1 : 0)
+  const topRow = lineRow - two
+  const upper = row < lineRow ? 1 : 0
+  const lowDens = v.rows2 > 0.5 ? clamp(v.fill / 0.6, 0, 1) : clamp(v.fill, 0, 1)
+  const upDens = clamp((v.fill - 0.6) / 0.4, 0, 1)
+  const dens = mix(0.15, 1, upper > 0.5 ? upDens : lowDens)
+  const present = rnd(int(ci * 6007 + int(row) * 31 + 17)) < dens ? 1 : 0
+  const onLine = v.gauge * (row >= topRow && row <= lineRow ? 1 : 0)
   const below = v.gauge * (row > lineRow ? 1 : 0)
   const lineY = size.y - (lineRow + 1) * ch
 
@@ -105,7 +113,7 @@ const rain = picture(px => {
     lit = max(lit, exp(-a / max(trail, 1)))
     head = max(head, a < 1 ? 1 : 0)
     // Éclat quand la tête atteint la ligne, qui s'éteint en ~2 rangées de temps
-    splash = max(splash, exp(-mod(h - lineRow, loop) / 2.5))
+    splash = max(splash, exp(-mod(h - topRow, loop) / 2.5))
   }
 
   // Glyphe de la case ; une case sur dix change de temps en temps, toutes sur la ligne
@@ -157,9 +165,11 @@ const rain = picture(px => {
   const red = vec3(1.0, 0.26, 0.2)
   const gaugeTint = vec3(mix(vec3(mix(green, amber, smoothstep(0.55, 0.65, fl))), red, smoothstep(0.95, 1.0, fl)))
   const pulse = fl >= 1 ? 0.85 + 0.15 * sin(time * 1.6) : 1
-  const lineTint = vec3(mix(gaugeTint, white, splash * 0.5))
-  const lineBright = (0.35 * present + splash * 1.1) * pulse
-  const lineGlyph = vec3(lineTint * (ink + halo * (0.4 + splash * 0.8)) * lineBright)
+  // L'éclat de fin de chute ne touche que la ligne la plus haute
+  const hit = splash * (row === topRow ? 1 : 0)
+  const lineTint = vec3(mix(gaugeTint, white, hit * 0.5))
+  const lineBright = (0.35 * present + hit * 1.1) * pulse
+  const lineGlyph = vec3(lineTint * (ink + halo * (0.4 + hit * 0.8)) * lineBright)
   const floorGlow = below * exp(-max(lineY - qy, 0) / (ch * 1.5)) * 0.08 * pulse
 
   return vec4(bg + vec3(mix(glyph, lineGlyph, onLine)) * (1 - below) + gaugeTint * floorGlow, 1)

@@ -36,6 +36,7 @@ Licence MIT : voir le fichier `LICENSE`.
 | `glow` | `aucun`, `doux`, `normal`, `fort` | `normal` |
 | `pointer` | `true` / `false` | `true` |
 | `gauge` | `true` / `false` — jauge de contexte en ligne vivante | `true` |
+| `gaugeRows` | `auto` (deux lignes en 7 pt et moins, une au-delà), `une`, `deux` — la seconde ligne apparaît au premier palier (60 %) | `auto` |
 
 ### Jauge de contexte
 
