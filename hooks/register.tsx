@@ -44,9 +44,19 @@ const SPEED: Record<string, number> = { lente: 0.7, normale: 1, rapide: 1.4 }
 const TRAIL: Record<string, number> = { courte: 0.6, normale: 1, longue: 1.6 }
 const GLOW: Record<string, number> = { aucun: 0, doux: 0.6, normal: 1, fort: 1.6 }
 
+// Seuil de relance du fil (doctrine roll-thread), pas la fenêtre complète :
+// Opus ~190K, Sonnet ~150K, Haiku 70 % ; autre modèle 75 % de la fenêtre.
+function relaunchAt(model: string, window: number): number {
+  const m = model.toLowerCase()
+  const at = m.includes('opus') ? 190_000 : m.includes('sonnet') ? 150_000 : m.includes('haiku') ? window * 0.7 : window * 0.75
+  return Math.max(Math.min(at, window), 1)
+}
+
 export const register: Register = (on, options) => {
   const pickNum = (table: Record<string, number>, key: unknown, fallback: number) =>
     typeof key === 'string' ? (table[key] ?? fallback) : fallback
+
+  const gaugeOn = options.gauge !== false
 
   const tuning = {
     colw: pickNum(DENSITY, options.density, 7),
@@ -54,9 +64,41 @@ export const register: Register = (on, options) => {
     trail: pickNum(TRAIL, options.trail, 1),
     glow: pickNum(GLOW, options.glow, 1),
     react: options.pointer === false ? 0 : 1,
+    gauge: gaugeOn ? 1 : 0,
+  }
+
+  // Remplissage rapporté au seuil de relance : 0 à 1, au-delà 1 à 1,2.
+  // Pas de chiffre avant la première réponse ni juste après une compaction : 0.
+  let fill = 0
+
+  const measure = async (
+    model: () => Promise<string>,
+    ctx: { tokens?: number; window: number },
+  ): Promise<boolean> => {
+    const next = ctx.tokens === undefined ? 0 : Math.min(ctx.tokens / relaunchAt(await model(), ctx.window), 1.2)
+    const moved = Math.abs(next - fill) > 0.004
+    fill = next
+    return moved
+  }
+
+  if (gaugeOn) {
+    on('session.measure', async ($, e, next) => {
+      if (e.changed.includes('context') && (await measure(() => $.session.model(), e.context))) {
+        $.ui.invalidate('ui.render')
+      }
+      return next(e)
+    })
   }
 
   on('session.start', async ($, e, next) => {
+    if (gaugeOn) {
+      try {
+        await measure(() => $.session.model(), (await $.session.usage()).context)
+      } catch (error) {
+        $.ui.log(String(error))
+      }
+    }
+
     const unpainted = problems.find(line => line.startsWith("Desktop won't paint"))
 
     if (unpainted !== undefined) {
@@ -89,7 +131,7 @@ export const register: Register = (on, options) => {
     // Le shader joue sur desktop ; le Svg prend le relais sur mobile,
     // en mouvement réduit, ou si le shader est refusé.
     return (
-      <Shader module="./rain-shader.ts" values={tuning}>
+      <Shader module="./rain-shader.ts" values={{ ...tuning, fill }}>
         <Svg source={RAIN_SCENE} alt="Colonnes de glyphes verts qui s'allument et s'éteignent" isInteractive />
       </Shader>
     )

@@ -2,8 +2,8 @@
 // traînée qui s'éteint sur place, halo, colonnes qui s'écartent sous le pointeur,
 // onde lumineuse à chaque clic. Réglages reçus du mod par `values`.
 import {
-  abs, clamp, dot, exp, floor, int, length, max, min, mix, mod, picture, pointers,
-  shader, size, smoothstep, sqrt, table, time, unsigned, values, vec2, vec3, vec4,
+  abs, clamp, composer, dot, exp, floor, int, length, max, min, mix, mod, picture, pointers,
+  shader, sin, size, smoothstep, sqrt, table, time, unsigned, values, vec2, vec3, vec4,
 } from 'claude-code/shader'
 import type { int as Int, vec2 as V2 } from 'claude-code/shader'
 
@@ -13,6 +13,8 @@ const v = values({
   trail: [0.4, 2],  // multiplicateur de longueur de traînée
   glow: [0, 2],     // intensité du halo
   react: [0, 1],    // 1 : réaction au pointeur et aux clics
+  gauge: [0, 1],    // 1 : jauge de contexte en sédiment
+  fill: [0, 1.2],   // remplissage rapporté au seuil de relance (1 = seuil)
 })
 
 // Traits de glyphes dans une boîte 0..1 (y vers le haut) : x1, y1, x2, y2
@@ -79,6 +81,15 @@ const rain = picture(px => {
   const rows = size.y / ch + 1
   const ci = int(col)
 
+  // Jauge : sédiment de cases figées depuis le bas, plafonné au haut de la boîte
+  // de prompt (composer : gauche, bas, droite, haut, de 0 à 1 depuis le bas).
+  const boxTop = max(composer.y, composer.w)
+  const cap = boxTop > 0.02 ? boxTop : 0.12
+  const level = clamp(v.fill, 0, 1) * cap * size.y * v.gauge
+  const cy = size.y - (row + 0.5) * ch
+  const sed = cy < level ? 1 : 0
+  const crest = sed * (cy > level - ch ? 1 : 0)
+
   // Deux flux par colonne, chacun avec sa vitesse, sa pause et sa traînée
   let lit = 0
   let head = 0
@@ -94,9 +105,9 @@ const rain = picture(px => {
     head = max(head, a < 1 ? 1 : 0)
   }
 
-  // Glyphe de la case ; une case sur dix change de temps en temps
+  // Glyphe de la case ; une case sur dix change de temps en temps, sauf dans le sédiment
   const cell = int(ci * 7919 + int(row) * 2903)
-  const mutates = rnd(int(cell + 11)) < 0.1 ? 1 : 0
+  const mutates = rnd(int(cell + 11)) < 0.1 ? 1 - sed : 0
   const tick = floor(time * (0.4 + rnd(int(cell + 12)))) * mutates
   const g = hash(int(cell + int(tick) * 104729))
 
@@ -134,7 +145,18 @@ const rain = picture(px => {
 
   const bg = vec3(0.004, 0.016, 0.008)
   const glyph = vec3(tint * (ink + halo * (0.35 + head * 0.5)) * bright)
-  return vec4(bg + glyph, 1)
+
+  // Sédiment : vert sous 60 % du seuil, ambre jusqu'au seuil, rouge au-delà ;
+  // crête plus claire, pulsation lente (~4 s) une fois le seuil franchi.
+  const fl = v.fill
+  const amber = vec3(1.0, 0.7, 0.12)
+  const red = vec3(1.0, 0.26, 0.2)
+  const sedTint = vec3(mix(vec3(mix(green, amber, smoothstep(0.55, 0.65, fl))), red, smoothstep(0.95, 1.0, fl)))
+  const pulse = fl >= 1 ? 0.85 + 0.15 * sin(time * 1.6) : 1
+  const sedBright = (0.3 + crest * 0.35) * pulse
+  const sedGlyph = vec3(sedTint * (ink + halo * 0.25) * sedBright + sedTint * 0.025)
+
+  return vec4(bg + vec3(mix(glyph, sedGlyph, sed)), 1)
 })
 
 export default shader({ fps: 30, passes: [rain] })
