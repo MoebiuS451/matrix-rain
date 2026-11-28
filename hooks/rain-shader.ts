@@ -15,7 +15,6 @@ const v = values({
   react: [0, 1],    // 1 : réaction au pointeur et aux clics
   gauge: [0, 1],    // 1 : jauge de contexte (ligne vivante en bas)
   fill: [0, 1.2],   // remplissage rapporté au seuil de relance (1 = seuil)
-  rows2: [0, 1],    // 1 : la ligne se double au premier palier (60 %)
 })
 
 // Traits de glyphes dans une boîte 0..1 (y vers le haut) : x1, y1, x2, y2
@@ -84,14 +83,14 @@ const rain = picture(px => {
 
   // Jauge : une ligne vivante tout en bas, où la pluie finit sa chute. Elle se
   // densifie avec le remplissage : 15 % des cases présentes à vide, toutes au seuil.
-  // Doublée (rows2), la ligne du bas se remplit jusqu'au premier palier (60 %), puis
-  // une seconde ligne apparaît au-dessus et se remplit jusqu'au seuil.
+  // Au seuil de relance (rouge), une seconde ligne apparaît au-dessus, moyennement
+  // dense, et se remplit au-delà du seuil.
   const lineRow = floor(max(size.y - ch * 0.5, 0) / ch)
-  const two = v.rows2 * (v.fill >= 0.6 ? 1 : 0)
+  const two = v.fill >= 1 ? 1 : 0
   const topRow = lineRow - two
   const upper = row < lineRow ? 1 : 0
-  const lowDens = v.rows2 > 0.5 ? clamp(v.fill / 0.6, 0, 1) : clamp(v.fill, 0, 1)
-  const upDens = clamp((v.fill - 0.6) / 0.4, 0, 1)
+  const lowDens = clamp(v.fill, 0, 1)
+  const upDens = clamp(0.35 + (v.fill - 1) / 0.2 * 0.65, 0, 1)
   const dens = mix(0.15, 1, upper > 0.5 ? upDens : lowDens)
   const present = rnd(int(ci * 6007 + int(row) * 31 + 17)) < dens ? 1 : 0
   const onLine = v.gauge * (row >= topRow && row <= lineRow ? 1 : 0)

@@ -59,12 +59,9 @@ export const register: Register = (on, options) => {
   const gaugeOn = options.gauge !== false
 
   const colw = pickNum(DENSITY, options.density, 7)
-  // auto : ligne doublée pour les colonnes fines (7 pt et moins), simple au-delà
-  const rows2 = options.gaugeRows === 'deux' ? 1 : options.gaugeRows === 'une' ? 0 : colw <= 7 ? 1 : 0
 
   const tuning = {
     colw,
-    rows2,
     speed: pickNum(SPEED, options.speed, 1),
     trail: pickNum(TRAIL, options.trail, 1),
     glow: pickNum(GLOW, options.glow, 1),
