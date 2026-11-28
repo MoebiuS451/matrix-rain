@@ -45,10 +45,10 @@ const TRAIL: Record<string, number> = { courte: 0.6, normale: 1, longue: 1.6 }
 const GLOW: Record<string, number> = { aucun: 0, doux: 0.6, normal: 1, fort: 1.6 }
 
 // Seuil de relance du fil (doctrine roll-thread), pas la fenêtre complète :
-// Opus ~190K, Sonnet ~150K, Haiku 70 % ; autre modèle 75 % de la fenêtre.
+// Opus ~250K, Sonnet ~200K, Haiku 70 % ; autre modèle 75 % de la fenêtre.
 function relaunchAt(model: string, window: number): number {
   const m = model.toLowerCase()
-  const at = m.includes('opus') ? 190_000 : m.includes('sonnet') ? 150_000 : m.includes('haiku') ? window * 0.7 : window * 0.75
+  const at = m.includes('opus') ? 250_000 : m.includes('sonnet') ? 200_000 : m.includes('haiku') ? window * 0.7 : window * 0.75
   return Math.max(Math.min(at, window), 1)
 }
 
@@ -83,6 +83,36 @@ export const register: Register = (on, options) => {
     return moved
   }
 
+  // Cache froid : plus de requête du fil principal depuis la durée de vie du
+  // cache (1 h dans les sessions observées). La pluie passe alors au cyan.
+  // L'heure de la dernière requête est gardée par session dans `$.store`, pour
+  // qu'un fil rouvert après une longue pause s'affiche froid d'emblée.
+  const CACHE_TTL = 3_600_000
+  const KEEP = 3 * 86_400_000
+  let lastAt: number | undefined
+  let cold = 0
+  // Vrai si l'état du cache a changé (le dessin est alors à refaire).
+  const flip = (next: number): boolean => {
+    const moved = next !== cold
+    cold = next
+    return moved
+  }
+
+  on('turn.step', async function* ($, e, next) {
+    if (e.agentId === undefined) {
+      lastAt = await $.clock.now()
+      if (flip(0)) {
+        $.ui.invalidate('ui.render')
+      }
+      try {
+        await $.store.set(`last:${await $.session.id()}`, lastAt)
+      } catch (error) {
+        $.ui.log(String(error), { to: 'debug' })
+      }
+    }
+    return yield* next(e)
+  })
+
   if (gaugeOn) {
     on('session.measure', async ($, e, next) => {
       if (e.changed.includes('context') && (await measure(() => $.session.model(), e.context))) {
@@ -99,6 +129,32 @@ export const register: Register = (on, options) => {
       } catch (error) {
         $.ui.log(String(error))
       }
+    }
+
+    try {
+      const now = await $.clock.now()
+      const stored = await $.store.get(`last:${await $.session.id()}`)
+      if (lastAt === undefined && typeof stored === 'number') {
+        lastAt = stored
+      }
+      // Ménage : on oublie les sessions sans requête depuis trois jours.
+      for (const key of await $.store.keys()) {
+        const at = key.startsWith('last:') ? await $.store.get(key) : undefined
+        if (typeof at === 'number' && now - at > KEEP) {
+          await $.store.delete(key)
+        }
+      }
+      const check = async () => {
+        if (lastAt !== undefined) {
+          if (flip((await $.clock.now()) - lastAt > CACHE_TTL ? 1 : 0)) {
+            $.ui.invalidate('ui.render')
+          }
+        }
+      }
+      await check()
+      $.clock.every(30_000, () => void check())
+    } catch (error) {
+      $.ui.log(String(error))
     }
 
     const unpainted = problems.find(line => line.startsWith("Desktop won't paint"))
@@ -133,7 +189,7 @@ export const register: Register = (on, options) => {
     // Le shader joue sur desktop ; le Svg prend le relais sur mobile,
     // en mouvement réduit, ou si le shader est refusé.
     return (
-      <Shader module="./rain-shader.ts" values={{ ...tuning, fill }}>
+      <Shader module="./rain-shader.ts" values={{ ...tuning, fill, cold }}>
         <Svg source={RAIN_SCENE} alt="Colonnes de glyphes verts qui s'allument et s'éteignent" isInteractive />
       </Shader>
     )

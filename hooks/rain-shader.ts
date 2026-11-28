@@ -15,6 +15,7 @@ const v = values({
   react: [0, 1],    // 1 : réaction au pointeur et aux clics
   gauge: [0, 1],    // 1 : jauge de contexte (ligne vivante en bas)
   fill: [0, 1.2],   // remplissage rapporté au seuil de relance (1 = seuil)
+  cold: [0, 1],     // 1 : cache froid, la pluie passe au cyan
 })
 
 // Traits de glyphes dans une boîte 0..1 (y vers le haut) : x1, y1, x2, y2
@@ -151,16 +152,19 @@ const rain = picture(px => {
 
   const green = vec3(0.1, 1.0, 0.36)
   const white = vec3(0.86, 1.0, 0.9)
-  const tint = vec3(mix(green, white, head))
+  // Pluie verte cache chaud, cyan cache froid ; la ligne de jauge garde ses couleurs.
+  const cyan = vec3(0.1, 0.85, 1.0)
+  const rainHue = vec3(mix(green, cyan, v.cold))
+  const tint = vec3(mix(rainHue, white, head))
 
   const bg = vec3(0.004, 0.016, 0.008)
   const glyph = vec3(tint * (ink + halo * (0.35 + head * 0.5)) * bright)
 
-  // Ligne : vert sous 60 % du seuil, ambre jusqu'au seuil, rouge au-delà, avec
+  // Ligne : vert sous 60 % du seuil, jaune ambré jusqu'au seuil, rouge au-delà, avec
   // une pulsation lente (~4 s) une fois le seuil franchi. Chaque chute s'y termine
   // par un éclat ; une lueur douce descend sous la ligne.
   const fl = v.fill
-  const amber = vec3(1.0, 0.7, 0.12)
+  const amber = vec3(1.0, 0.86, 0.22)
   const red = vec3(1.0, 0.26, 0.2)
   const gaugeTint = vec3(mix(vec3(mix(green, amber, smoothstep(0.55, 0.65, fl))), red, smoothstep(0.95, 1.0, fl)))
   const pulse = fl >= 1 ? 0.85 + 0.15 * sin(time * 1.6) : 1

@@ -39,11 +39,15 @@ Licence MIT : voir le fichier `LICENSE`.
 
 ### Jauge de contexte
 
-La pluie finit sa chute sur une ligne de glyphes vivants, tout en bas de l'écran ; chaque goutte qui l'atteint y laisse un éclat lumineux. La ligne se densifie à mesure que le contexte du fil se remplit : 15 % des cases à vide, toutes au seuil. Le remplissage se mesure contre le **seuil de relance** du fil, pas contre la fenêtre complète : ~190K tokens pour Opus, ~150K pour Sonnet, 70 % de la fenêtre pour Haiku, 75 % pour un autre modèle.
+La pluie finit sa chute sur une ligne de glyphes vivants, tout en bas de l'écran ; chaque goutte qui l'atteint y laisse un éclat lumineux. La ligne se densifie à mesure que le contexte du fil se remplit : 15 % des cases à vide, toutes au seuil. Le remplissage se mesure contre le **seuil de relance** du fil, pas contre la fenêtre complète : ~250K tokens pour Opus, ~200K pour Sonnet, 70 % de la fenêtre pour Haiku, 75 % pour un autre modèle.
 
-- Vert sous 60 % du seuil, ambre de 60 à 100 %, rouge au-delà, avec une pulsation lente.
+- Vert sous 60 % du seuil, jaune ambré de 60 à 100 %, rouge au-delà, avec une pulsation lente.
 - Au seuil (rouge), une seconde ligne moyennement dense apparaît au-dessus et se remplit au-delà : c'est le moment de relancer le fil ou de compacter.
 - Mise à jour à la fin de chaque tour ; rien avant la première réponse ni juste après une compaction.
+### Cache froid
+
+Quand le fil reste plus d'une heure sans requête (durée de vie du cache de prompt), la pluie passe du vert au **cyan** : la prochaine réponse relira tout le contexte au prix fort. Elle redevient verte dès la requête suivante. Un fil rouvert après une longue pause s'affiche cyan d'emblée.
+
 - Sur desktop seulement : la version SVG de secours n'a pas de jauge.
 
 Modifiables avec `/config` dans un terminal, ou dans `settings.json` sous `pluginConfigs`.
