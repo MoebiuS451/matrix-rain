@@ -1,7 +1,8 @@
 {
   "name": "matrix-rain",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Thème sombre vert phosphore avec une pluie numérique animée en fond (app desktop et mobile).",
+  "author": { "name": "Olivier BERTHIER Msc" },
   "license": "MIT",
   "userConfig": {
     "density": {

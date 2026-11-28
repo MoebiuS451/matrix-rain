@@ -22,6 +22,8 @@ claude plugin install matrix-rain --marketplace MoebiuS451/matrix-rain
 
 Dans l'app desktop : bouton **+** à côté de la zone de saisie, **Plugins**, **Add marketplace** avec `MoebiuS451/matrix-rain`, puis **Add plugin**.
 
+Auteur : Olivier BERTHIER Msc (MoebiuS451).
+
 Licence MIT : voir le fichier `LICENSE`.
 
 ## Réglages
